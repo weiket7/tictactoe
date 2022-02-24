@@ -14,12 +14,14 @@ function App() {
     text: "",
   }
 
-  const [currentPlayer, setNextPlayer] = useState(SYMBOL.O);
   const [message, setMessage] = useState(defaultMessage);
-  const [boardState, setBoardState] = useState(BOARDSTATE.GameOn);
-  const [score, setScore] = useState({O: 0, X: 0});
   const [grid, setGrid] = useState(defaultGrid);
+  const [score, setScore] = useState({O: 0, X: 0});
+
+  const [currentPlayer, setNextPlayer] = useState(SYMBOL.O);
+  const [boardState, setBoardState] = useState(BOARDSTATE.GameOn);
   const [moves, setMoves] = useState(0);
+  const [winner, setWinner] = useState(null);
 
   const selectCell = (rowIndex, columnIndex) => {
     let updatedMoves = moves;
@@ -28,6 +30,7 @@ function App() {
 
     const hasCellBeenSelected = grid[rowIndex][columnIndex] !== SYMBOL.Default;
     if (hasCellBeenSelected) {
+      setMessage({type: "danger", text: "Cell has been selected, select another cell"});
       return
     }
 
@@ -39,6 +42,7 @@ function App() {
     const hasWinner = checkWinner(updatedGrid, rowIndex, columnIndex, currentPlayer);
     if(hasWinner) {
       setBoardState(BOARDSTATE.HasWinner);
+      setWinner(currentPlayer);
       setMessage({type: "success", text: "Player " + currentPlayer + " wins!" })
 
       let updatedScore = {...score};
@@ -54,6 +58,8 @@ function App() {
     }
     setMessage(defaultMessage);
   }
+
+  const shouldDisableBoard = boardState === BOARDSTATE.Draw || boardState === BOARDSTATE.HasWinner;
 
   const checkWinner = (grid, rowIndex, columnIndex, targetSymbol) => {
     //check columns
@@ -90,7 +96,7 @@ function App() {
     }
 
     //check other diagonal
-    if (rowIndex + columnIndex == gridDimension - 1) {
+    if (rowIndex + columnIndex === gridDimension - 1) {
       for (let i = 0; i < gridDimension; i++) {
         if (grid[i][(gridDimension - 1) - i] !== targetSymbol)
           break;
@@ -106,25 +112,26 @@ function App() {
     setBoardState(BOARDSTATE.GameOn);
     setMessage(defaultMessage);
     setMoves(0);
+    setWinner(null);
   }
 
   return (
     <div id="tic-tac-toe">
-      <div>
+      <div className="text-center">
         <h1 className="mb-3">Tic Tac Toe</h1>
         <div className="row">
-          <div className="col text-center">
-            <h5>Player O</h5>
+          <div className="col">
+            <h5 className={winner === SYMBOL.O && "text-success"}>Player O</h5>
           </div>
-          <div className="col text-center">
-            <h5>Player X</h5>
+          <div className="col">
+            <h5 className={winner === SYMBOL.X && "text-success"}>Player X</h5>
           </div>
         </div>
         <div className="row">
-          <div className="col text-center">
+          <div className={"col " + (winner === SYMBOL.O ? "text-success" : "")}>
             {score.O} wins
           </div>
-          <div className="col text-center">
+          <div className={"col " + (winner === SYMBOL.X ? "text-success" : "")}>
             {score.X} wins
           </div>
         </div>
@@ -133,7 +140,7 @@ function App() {
           {grid.map((row, rowIndex) =>
             row.map((cell, columnIndex) =>
               <Cell key={rowIndex + "" + columnIndex} rowIndex={rowIndex} columnIndex={columnIndex}
-                disabled={boardState === BOARDSTATE.Draw || boardState === BOARDSTATE.HasWinner} stateChanger={selectCell}>
+                disabled={shouldDisableBoard} stateChanger={selectCell}>
                 {cell}
               </Cell>
             )
@@ -149,7 +156,7 @@ function App() {
         
         <div className="mt-3 row">
           <div className="col">
-            <button className="btn btn-success btn-lg" onClick={restartGame}>
+            <button className="btn btn-success btn-lg w-100" onClick={restartGame}>
               Restart
             </button>
           </div>
