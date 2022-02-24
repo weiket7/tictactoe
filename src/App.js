@@ -1,118 +1,158 @@
 import { useState } from 'react';
 import './App.css';
 import Cell from './Cell';
+import { cloneDeepArray } from './utilities/ArrayHelper';
+import { BOARDSTATE } from './utilities/BoardState';
+import { SYMBOL } from './utilities/Symbol';
 
 function App() {
-  const [currentPlayer, nextPlayer] = useState("O");
+  const gridDimension = 3;
+  const totalPossibleMoves = gridDimension * gridDimension;
+  const defaultGrid = Array(gridDimension).fill(Array(gridDimension).fill(SYMBOL.Default));
+  const defaultMessage = {
+    type: "error",
+    text: "",
+  }
+
+  const [currentPlayer, setNextPlayer] = useState(SYMBOL.O);
+  const [message, setMessage] = useState(defaultMessage);
+  const [boardState, setBoardState] = useState(BOARDSTATE.GameOn);
   const [score, setScore] = useState({O: 0, X: 0});
-  const [grid, setGrid] = useState(Array(3).fill(Array(3).fill("+")));
+  const [grid, setGrid] = useState(defaultGrid);
+  const [moves, setMoves] = useState(0);
 
   const selectCell = (rowIndex, columnIndex) => {
-    const hasCellBeenSelected = grid[rowIndex][columnIndex] !== "+";
+    let updatedMoves = moves;
+    updatedMoves++;
+    setMoves(updatedMoves);
+
+    const hasCellBeenSelected = grid[rowIndex][columnIndex] !== SYMBOL.Default;
     if (hasCellBeenSelected) {
       return
     }
 
-    currentPlayer === "O" ? nextPlayer("X") : nextPlayer("O");
+    currentPlayer === SYMBOL.O ? setNextPlayer(SYMBOL.X) : setNextPlayer(SYMBOL.O);
     let updatedGrid = cloneDeepArray(grid);
     updatedGrid[rowIndex][columnIndex] = currentPlayer;
     setGrid(updatedGrid);
 
     const hasWinner = checkWinner(updatedGrid, rowIndex, columnIndex, currentPlayer);
     if(hasWinner) {
+      setBoardState(BOARDSTATE.HasWinner);
+      setMessage({type: "success", text: "Player " + currentPlayer + " wins!" })
+
       let updatedScore = {...score};
       updatedScore[currentPlayer]++;
       setScore(updatedScore);
+      return
     }
+
+    if(updatedMoves === totalPossibleMoves) {
+      setMessage({type: "info", text: "Draw"})
+      setBoardState(BOARDSTATE.Draw);
+      return
+    }
+    setMessage(defaultMessage);
   }
 
-  const cloneDeepArray = (array) => {
-    return array.map(function (arr) {
-      return arr.slice();
-    });
-  }
-
-  const checkWinner = (updatedGrid, x, y, s) => {
-    let n = 3;
-
+  const checkWinner = (grid, rowIndex, columnIndex, targetSymbol) => {
     //check columns
     let count = 0;
-    for (let i = 0; i < n; i++) {
-      if (updatedGrid[x][i] === s) {
+    for (let i = 0; i < gridDimension; i++) {
+      if (grid[rowIndex][i] === targetSymbol) {
         count++;
       }
     }
-    if (count === n) {
+    if (count === gridDimension) {
       return true;
     }
 
     count = 0;
     //check rows
-    for (let i = 0; i < n; i++) {
-      if (updatedGrid[i][y] === s) {
+    for (let i = 0; i < gridDimension; i++) {
+      if (grid[i][columnIndex] === targetSymbol) {
         count++;
       }
     }
-    if (count === n) {
+    if (count === gridDimension) {
       return true;
     }
 
     //check diagonal
-    if (x === y) {
-      for (let i = 0; i < n; i++) {
-        if (updatedGrid[i][i] !== s)
+    if (rowIndex === columnIndex) {
+      for (let i = 0; i < gridDimension; i++) {
+        if (grid[i][i] !== targetSymbol)
           break;
-        if (i === n - 1) {
+        if (i === gridDimension - 1) {
           return true;
         }
       }
     }
 
     //check other diagonal
-    if (x + y == n - 1) {
-      for (let i = 0; i < n; i++) {
-        if (updatedGrid[i][(n - 1) - i] != s)
+    if (rowIndex + columnIndex == gridDimension - 1) {
+      for (let i = 0; i < gridDimension; i++) {
+        if (grid[i][(gridDimension - 1) - i] !== targetSymbol)
           break;
-        if (i === n - 1) {
+        if (i === gridDimension - 1) {
           return true;
         }
       }
     }
   }
 
+  const restartGame = () => {
+    setGrid(defaultGrid);
+    setBoardState(BOARDSTATE.GameOn);
+    setMessage(defaultMessage);
+    setMoves(0);
+  }
+
   return (
-    <div>
-      <h1 className="mb-3">Tic Tac Toe</h1>
-      <div class="row">
-        <div class="col text-center">
-          <h5>Player O</h5>
+    <div id="tic-tac-toe">
+      <div>
+        <h1 className="mb-3">Tic Tac Toe</h1>
+        <div className="row">
+          <div className="col text-center">
+            <h5>Player O</h5>
+          </div>
+          <div className="col text-center">
+            <h5>Player X</h5>
+          </div>
         </div>
-        <div class="col text-center">
-          <h5>Player X</h5>
+        <div className="row">
+          <div className="col text-center">
+            {score.O} wins
+          </div>
+          <div className="col text-center">
+            {score.X} wins
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col text-center">
-          {score.O} wins
-        </div>
-        <div class="col text-center">
-          {score.X} wins
-        </div>
-      </div>
 
-      <div class="row">
-        {grid.map((row, rowIndex) =>
-          row.map((cell, columnIndex) =>
-            <Cell key={rowIndex + "" + columnIndex} rowIndex={rowIndex} columnIndex={columnIndex} stateChanger={selectCell}>
-              {cell}
-            </Cell>
-          )
-        )}
-      </div>
+        <div className="row">
+          {grid.map((row, rowIndex) =>
+            row.map((cell, columnIndex) =>
+              <Cell key={rowIndex + "" + columnIndex} rowIndex={rowIndex} columnIndex={columnIndex}
+                disabled={boardState === BOARDSTATE.Draw || boardState === BOARDSTATE.HasWinner} stateChanger={selectCell}>
+                {cell}
+              </Cell>
+            )
+          )}
+        </div>
 
-      <div className="mt-3 row">
-        <div className="col">
-          <a href="#" id="reset" className="btn-success btn span3">Restart</a>
+        {
+          message.text &&
+          <div className={"alert alert-"+message.type}>
+            {message.text}
+          </div>
+        }
+        
+        <div className="mt-3 row">
+          <div className="col">
+            <button className="btn btn-success btn-lg" onClick={restartGame}>
+              Restart
+            </button>
+          </div>
         </div>
       </div>
     </div>
