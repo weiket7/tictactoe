@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import Cell from './Cell';
 import { cloneDeepArray } from './utilities/ArrayHelper';
@@ -13,6 +13,17 @@ function App() {
     type: "error",
     text: "",
   }
+
+  const handleKeyDown = (e) => {
+    if(e.key === "Enter") {
+      document.activeElement.blur()
+      restartGame();
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+  }, [])
 
   const [message, setMessage] = useState(defaultMessage);
   const [grid, setGrid] = useState(defaultGrid);
@@ -43,6 +54,8 @@ function App() {
     if(hasWinner) {
       setBoardState(BOARDSTATE.HasWinner);
       setWinner(currentPlayer);
+      setNextPlayer(SYMBOL.Default);
+      
       setMessage({type: "success", text: "Player " + currentPlayer + " wins!" })
 
       let updatedScore = {...score};
@@ -53,6 +66,7 @@ function App() {
 
     if(updatedMoves === totalPossibleMoves) {
       setMessage({type: "info", text: "Draw"})
+      setNextPlayer(SYMBOL.Default);
       setBoardState(BOARDSTATE.Draw);
       return
     }
@@ -112,7 +126,12 @@ function App() {
     setBoardState(BOARDSTATE.GameOn);
     setMessage(defaultMessage);
     setMoves(0);
+    setNextPlayer(SYMBOL.O);
     setWinner(null);
+  }
+
+  const getPlayerClass = (symbol) => {
+    return currentPlayer === symbol ? "text-info" : winner === symbol && "text-success";
   }
 
   return (
@@ -121,17 +140,17 @@ function App() {
         <h1 className="mb-3">Tic Tac Toe</h1>
         <div className="row">
           <div className="col">
-            <h5 className={winner === SYMBOL.O && "text-success"}>Player O</h5>
+            <h5 className={getPlayerClass(SYMBOL.O)}>Player O</h5>
           </div>
           <div className="col">
-            <h5 className={winner === SYMBOL.X && "text-success"}>Player X</h5>
+            <h5 className={getPlayerClass(SYMBOL.X)}>Player X</h5>
           </div>
         </div>
         <div className="row">
-          <div className={"col " + (winner === SYMBOL.O ? "text-success" : "")}>
+          <div className={"col " + (getPlayerClass(SYMBOL.O))}>
             {score.O} wins
           </div>
-          <div className={"col " + (winner === SYMBOL.X ? "text-success" : "")}>
+          <div className={"col " + (getPlayerClass(SYMBOL.X))}>
             {score.X} wins
           </div>
         </div>

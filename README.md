@@ -1,70 +1,37 @@
-# Getting Started with Create React App
+# Get started
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Pre-requisites
 
-## Available Scripts
+Node 16, not node 17 as there might be `Error: digital envelope routines::unsupported` which can be fixed but don't want to complicate things.
 
-In the project directory, you can run:
+## Why React?
+
+Using any frontend framework like React and Vue enables the code to be separated into components, which is easier to maintain and scale. 
+
+I'm familiar with pure Javascript, jQuery, React and Vue. I chose React because most frontend developers know React and in real working environment it'd be easier to hire them. 
+
+This application was built using React 17, the current version.
+
+## To run
+
+### `npm i`
 
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+It will open http://localhost:3000 in browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# Frontend enhancements
 
-### `npm test`
+1. When all cells are selected but there is no winner, show "Draw" message and disable cells. This was a bug in original version where nothing happened, although when player click a cell game will restart. 
+2. Logic to check winner is not hard-coded and more dynamic.
+3. The game can now support different grid sizes 2x2, 3x3, 4x4 etc with changes to CSS.
+4. When player click selected cell, instead of Javascript alert which requires one click to remove, a message is shown above Restart button.
+5. Player scores above tic tac toe is shown as left and right (previously up and down), it is more user-friendly as it's similar to how scores are shown in sports.
+6. Bootstrap has been upgraded from 2.3 to 5.1.3, this enables the application to make use of latest Bootstrap code and features.
+7. When there is winner, player score is highlighted in green.
+8. Current player is highlighted in blue at score area.
+9. Players can restart by pressing Enter key.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Potential ideas
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Assuming grid of 3x3 is kept, players can select cells using keyboard 1-9.
